@@ -1,0 +1,131 @@
+# 1. Using a subquery, find the names of all the tracks for the album "Californication".
+
+select ts.Name, ls.Title from Tracks ts 
+join Albums ls 
+on ts.AlbumId = ls.AlbumId
+where ls.Title = 'Californication'
+
++-------------------+-----------------+
+| Name              | Title           |
++-------------------+-----------------+
+| Around The World  | Californication |
+| Parallel Universe | Californication |
+| Scar Tissue       | Californication |
+| Otherside         | Californication |
+| Get On Top        | Californication |
+| Californication   | Californication |
+| Easily            | Californication |
+| Porcelain         | Californication |
+| Emit Remmus       | Californication |
+| I Like Dirt       | Californication |
++-------------------+-----------------+
+(Output limit exceeded, 10 of 15 total rows shown)
+
+# 2. Retrieve a list with the managers last name, and the last name of the employees who report to him or her. who are the reports for the manager named Mitchell?
+
+select auk.Employee, auk.Manager
+from (select es.LastName as Employee, ps.LastName as Manager from Employees es join Employees ps
+on es.ReportsTo = ps.EmployeeId where es.ReportsTo is not null) auk
+
++--------------+-------------+
+| auk.Employee | auk.Manager |
++--------------+-------------+
+| Edwards      | Adams       |
+| Peacock      | Edwards     |
+| Park         | Edwards     |
+| Johnson      | Edwards     |
+| Mitchell     | Adams       |
+| King         | Mitchell    |
+| Callahan     | Mitchell    |
++--------------+-------------+
+
+
+# 3. Retrieve the track name, album, artistID, and trackID for all the albums.
+
+select tk.Name, uk.Title, uk.ArtistId, tk.TrackId from 
+(select abs.Title, ats.ArtistId, abs.AlbumId from Albums abs join Artists ats on ats.ArtistId = abs.ArtistId) uk join Tracks tk 
+on tk.AlbumId = uk.AlbumId
+where TrackId = 12
+group by uk.Title
+
++--------------------+---------------------------------------+-------------+------------+
+| tk.Name            | uk.Title                              | uk.ArtistId | tk.TrackId |
++--------------------+---------------------------------------+-------------+------------+
+| Breaking The Rules | For Those About To Rock We Salute You |           1 |         12 |
++--------------------+---------------------------------------+-------------+------------+
+
+
+# 4. Find the total number of invoices for each customer along with the customer's full name, city and email. what is the email address of the 5th person, František Wichterlová? Enter the answer below
+
+select sum(ins.Total), cs.FirstName, cs.LastName, cs.City, cs.Email
+from Invoices ins join Customers cs
+on cs.CustomerId
+where cs.FirstName = "František"
+group by cs.FirstName
+
++----------------+-----------+-------------+--------+--------------------------+
+| sum(ins.Total) | FirstName | LastName    | City   | Email                    |
++----------------+-----------+-------------+--------+--------------------------+
+|         2328.6 | František | Wichterlová | Prague | frantisekw@jetbrains.com |
++----------------+-----------+-------------+--------+--------------------------+
+
+# 5. Find the name and ID of the artists who do not have albums. two of the records returned have the same last name. Enter that name below.
+
+select ats.Name, ats.ArtistId from Artists ats
+where ats.ArtistId not in (select ArtistId from Albums)
+
++----------------------------+----------+
+| Name                       | ArtistId |
++----------------------------+----------+
+| Milton Nascimento & Bebeto |       25 |
+| Azymuth                    |       26 |
+| João Gilberto              |       28 |
+| Bebel Gilberto             |       29 |
+| Jorge Vercilo              |       30 |
+| Baby Consuelo              |       31 |
+| Ney Matogrosso             |       32 |
+| Luiz Melodia               |       33 |
+| Nando Reis                 |       34 |
+| Pedro Luís & A Parede      |       35 |
++----------------------------+----------+
+(Output limit exceeded, 10 of 71 total rows shown)
+
+# 6. Use a UNION to create a list of all the employee's and customer's first names and last names ordered by the last name in descending order. determine what is the last name of the 6th record?
+
+select FirstName, LastName from Employees
+union all
+select FirstName, LastName from Customers 
+order by LastName desc
+
++-----------+--------------+
+| FirstName | LastName     |
++-----------+--------------+
+| Fynn      | Zimmermann   |
+| Stanisław | Wójcik       |
+| František | Wichterlová  |
+| Johannes  | Van der Berg |
+| François  | Tremblay     |
+| Mark      | Taylor       |
+| Ellie     | Sullivan     |
+| Victor    | Stevens      |
+| Puja      | Srivastava   |
+| Jack      | Smith        |
++-----------+--------------+
+(Output limit exceeded, 10 of 67 total rows shown)
+
+# 7. See if there are any customers who have a different city listed in their billing city versus their customer city.
+
+select cr.CustomerId, cr.City, iv.BillingCity
+from Customers cr join Invoices iv
+on cr.CustomerId = iv.CustomerId 
+where cr.City <> iv.BillingCity
+
++------------+------+-------------+
+| CustomerId | City | BillingCity |
++------------+------+-------------+
++------------+------+-------------+
+(Zero rows)
+
+No customers have a different city listed in their billing city versus customer city.
+
+[https://www.coursera.org/learn/sql-for-data-science/exam/cCOUv/module-3-coding-assignment]
